@@ -23,7 +23,7 @@ public class MixinTraitExtension implements IExtension {
     @Override
     public void preApply(ITargetClassContext context) {
         ClassInfo info = context.getClassInfo();
-        System.out.println("PREAPPLY");
+
         if (!info.isMixin()) {
 
         }
@@ -35,8 +35,8 @@ public class MixinTraitExtension implements IExtension {
 
         if (!info.isMixin()) {
             ClassNode node = context.getClassNode();
-            System.out.println("APPLY");
-            System.out.println(node.signature);
+
+
         }
     }
 

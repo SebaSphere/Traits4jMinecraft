@@ -29,14 +29,6 @@ public class CommonClass {
         }
 
 
-        // TODO: I should move this class util to a new variable
-        for(Class<?> originalClazz : PreMain.getAllClasses()) {
-            System.out.println(originalClazz.getName());
-            if (originalClazz.isAnnotationPresent(Trait.class)) {
-                Constants.LOG.info("Found trait: {}", originalClazz.getName());
-
-            }
-        }
 
     }
 }
