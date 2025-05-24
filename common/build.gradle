@@ -3,6 +3,10 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
+repositories {
+    mavenLocal()
+}
+
 neoForge {
     neoFormVersion = neo_form_version
     // Automatically enable AccessTransformers if the file exists
@@ -21,6 +25,17 @@ dependencies {
     // fabric and neoforge both bundle mixinextras, so it is safe to use it in common
     compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
     annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
+
+//    // bundled by MC
+    compileOnly 'org.ow2.asm:asm:9.6'
+    compileOnly 'org.ow2.asm:asm-tree:9.6'
+
+    // TODO: decouple this out of my local maven repo
+    compileOnly("net.terradevelopment.traits4j:traits4j:1.0.3-SNAPSHOT") {
+        exclude group: "org.ow2.asm", module: "asm"
+        exclude group: "org.ow2.asm", module: "asm-tree"
+    }
+
 }
 
 configurations {

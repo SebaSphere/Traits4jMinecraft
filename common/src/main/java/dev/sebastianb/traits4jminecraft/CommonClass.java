@@ -3,6 +3,8 @@ package dev.sebastianb.traits4jminecraft;
 import dev.sebastianb.traits4jminecraft.platform.Services;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Items;
+import net.terradevelopment.traits4j.PreMain;
+import net.terradevelopment.traits4j.annotations.Trait;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -23,7 +25,18 @@ public class CommonClass {
         // we have an interface in the common code and use a loader specific implementation to delegate our call to
         // the platform specific approach.
         if (Services.PLATFORM.isModLoaded("traits4jminecraft")) {
-            Constants.LOG.info("Hello to traits4jminecraft");
+            Constants.LOG.info("Hello to traits4jminecraft yeah");
         }
+
+
+        // TODO: I should move this class util to a new variable
+        for(Class<?> originalClazz : PreMain.getAllClasses()) {
+            System.out.println(originalClazz.getName());
+            if (originalClazz.isAnnotationPresent(Trait.class)) {
+                Constants.LOG.info("Found trait: {}", originalClazz.getName());
+
+            }
+        }
+
     }
 }

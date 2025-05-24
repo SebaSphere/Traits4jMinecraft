@@ -1,4 +1,4 @@
-package dev.sebastianb.traits4jminecraft.mixin;
+package dev.sebastianb.traits4jminecraft.trait;
 
 import net.minecraft.core.BlockPos;
 import net.terradevelopment.traits4j.annotations.Trait;
