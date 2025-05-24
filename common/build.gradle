@@ -31,7 +31,7 @@ dependencies {
     compileOnly 'org.ow2.asm:asm-tree:9.6'
 
     // TODO: decouple this out of my local maven repo
-    compileOnly("net.terradevelopment.traits4j:traits4j:1.0.3-SNAPSHOT") {
+    compileOnly("net.terradevelopment.traits4j:traits4j:1.0.4-SNAPSHOT") {
         exclude group: "org.ow2.asm", module: "asm"
         exclude group: "org.ow2.asm", module: "asm-tree"
     }

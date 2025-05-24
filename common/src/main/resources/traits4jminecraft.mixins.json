@@ -2,12 +2,12 @@
   "required": true,
   "minVersion": "0.8",
   "plugin": "dev.sebastianb.traits4jminecraft.TraitMixinInjector",
-  "package": "dev.sebastianb.traits4jminecraft.mixin",
+  "package": "dev.sebastianb.traits4jminecraft.gen.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_18",
   "mixins": [],
   "client": [
-    "MixinMinecraft"
+
   ],
   "server": [],
   "injectors": {

@@ -17,7 +17,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     // include("net.terradevelopment.traits4j:traits4j:1.0-SNAPSHOT")
-    implementation("net.terradevelopment.traits4j:traits4j:1.0.3-SNAPSHOT") {
+    implementation("net.terradevelopment.traits4j:traits4j:1.0.4-SNAPSHOT") {
         exclude group: "org.ow2.asm", module: "asm"
         exclude group: "org.ow2.asm", module: "asm-tree"
     }
