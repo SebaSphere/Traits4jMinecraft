@@ -4,6 +4,7 @@ import com.google.common.reflect.ClassPath;
 import dev.sebastianb.traits4jminecraft.trait.MinecraftTestTrait;
 import net.terradevelopment.traits4j.PreMain;
 import net.terradevelopment.traits4j.annotations.Trait;
+import net.terradevelopment.traits4j.clazz.TraitImplementationUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.MixinEnvironment;
@@ -239,6 +240,7 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         // do our silly asm stuff here
         System.out.println("Pre-applying " + targetClassName + " via " + mixinClassName);
+        TraitImplementationUtil.modifyClassNode(targetClass);
     }
 
     @Override
