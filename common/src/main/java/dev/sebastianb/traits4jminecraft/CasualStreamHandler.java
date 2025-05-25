@@ -93,6 +93,8 @@ public final class CasualStreamHandler extends URLStreamHandler {
 
 		*/
 
+		// the following code "fixes" that but preapply doesn't apply for mixin asm stuff
+
 //		if (url.getPath().toString().equals("/dev/sebastianb/traits4jminecraft/trait/MinecraftTestTrait.class")) {
 //
 //			// print stacktrace
