@@ -24,9 +24,12 @@ public class MixinTraitExtension implements IExtension {
     public void preApply(ITargetClassContext context) {
         ClassInfo info = context.getClassInfo();
 
-        if (!info.isMixin()) {
+        if (info.getName().startsWith("dev")) {
 
+            System.out.println("meow pred");
+            System.out.println(context.getClassInfo().getName());
         }
+
     }
 
     @Override
@@ -35,7 +38,6 @@ public class MixinTraitExtension implements IExtension {
 
         if (!info.isMixin()) {
             ClassNode node = context.getClassNode();
-
 
         }
     }

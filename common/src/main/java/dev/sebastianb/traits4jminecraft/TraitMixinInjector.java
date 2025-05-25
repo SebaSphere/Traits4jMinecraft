@@ -5,13 +5,14 @@ import dev.sebastianb.traits4jminecraft.trait.MinecraftTestTrait;
 import net.terradevelopment.traits4j.PreMain;
 import net.terradevelopment.traits4j.annotations.Trait;
 import org.objectweb.asm.*;
-import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.ext.Extensions;
 import org.spongepowered.asm.mixin.transformer.ext.extensions.ExtensionClassExporter;
+import org.spongepowered.asm.service.MixinService;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -27,6 +28,10 @@ import java.util.stream.Collectors;
 
 // TODO: do this
 public class TraitMixinInjector implements IMixinConfigPlugin {
+
+
+    private Map<String, Set<Consumer<ClassNode>>> tinkerers = new HashMap<>();
+
 
     // this was so painful to figure out, tysm fabric asm for the pain of copy paste
     // TODO: actually understand the code better and refractor from there
@@ -57,7 +62,7 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         }
     }
 
-    Predicate<URL> urlers = url -> {
+    private Predicate<URL> urlers = url -> {
         fishAddURL().accept(url);
         return true;
     };
@@ -69,9 +74,15 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
     @Override
     public void onLoad(String rawMixinPackage) {
         System.out.println("MIXIN INJECTION STARTED FROM " + rawMixinPackage);
-        ClassLoader loader = TraitMixinInjector.class.getClassLoader();
+        ClassLoader loader = this.getClass().getClassLoader();
 
         String mixinPackage = rawMixinPackage.replace('.', '/');
+
+
+        Map<String, Set<String>> preTransforms = new HashMap<>();
+
+        // after transformed
+        Map<String, Set<String>> postTransforms = new HashMap<>();
 
         Map<String, byte[]> classGenerators = new HashMap<>();
 
@@ -87,13 +98,15 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
                         if (annotation.annotationType().getName().equals(Trait.class.getName())) {
                             mixins.add(clazz.getSimpleName());
 
-                            // FIXME: maybe each mixin could have a unique gened name rather then making a fake package
+                            preTransforms.computeIfAbsent(clazz.getName().replace(".", "/"), k -> new HashSet<>()).add("<*>");
+
+                            // FIXME: each mixin should have a unique gened name rather then making a fake package
+                            // like mixin 1, mixin 2, mixin 3, etc
                             String genName = GENERATED_PACKAGE
                                     .replace(".", "/") + "/" + clazz.getSimpleName();
                             System.out.println("gener name " + genName);
 
-                            // TODO: somehow generate classes here for each mixin
-
+                            // this sets things up for the CasualStreamHandler to load stuff in the jvm
                             classGenerators.put('/' + genName.replace('.', '/') + ".class", makeMixinBlob('/' + genName.replace('.', '/'), Collections.singleton('/' + clazz.getName().replace('.', '/'))));
 
                         }
@@ -109,7 +122,11 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
 
         System.out.println("Casual stream handler created");
 
-        urlers.test(CasualStreamHandler.create(classGenerators));
+
+
+        for (var transform : preTransforms.entrySet()) {
+            System.out.println("EXISTING REFERENCE " + transform.getKey() + " VALUE " + transform.getValue());
+        }
 
 
 
@@ -150,6 +167,8 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
 
         // TODO: I need to generate a class at runtime for getMixins. Example filled out is "dev.sebastianb.traits4jminecraft.gen.mixin.dev.sebastianb.traits4jminecraft.trait.MinecraftTestTrait"
 
+        urlers.test(CasualStreamHandler.create(classGenerators));
+
         System.out.println("print class gens");
         System.out.println(classGenerators);
         classGenerators.forEach((name, bytes) -> {
@@ -165,6 +184,8 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
 
     static byte[] makeMixinBlob(String name, Collection<? extends String> targets) {
         ClassWriter cw = new ClassWriter(0);
+        System.out.println("mixin blob name is " + name);
+
         cw.visit(52, Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE, name, null, "java/lang/Object", null);
 
         AnnotationVisitor mixinAnnotation = cw.visitAnnotation("Lorg/spongepowered/asm/mixin/Mixin;", false);
@@ -175,13 +196,14 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         targetAnnotation.visitEnd();
         mixinAnnotation.visitEnd();
 
+
         cw.visitEnd();
         return cw.toByteArray();
     }
 
     @Override
     public String getRefMapperConfig() {
-        return "";
+        return null;
     }
 
     @Override
@@ -191,29 +213,36 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
 
     @Override
     public void acceptTargets(Set<String> set, Set<String> set1) {
-        for (String cls : set) {
-            System.out.println("Seen class: " + cls);
-        }
 
     }
 
     @Override
     public List<String> getMixins() {
+
         // print all loaded mixins
         System.out.println("FETCHING MIXINS");
         System.out.println(mixins);
+
+        try {
+            ClassLoader loader = this.getClass().getClassLoader();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
         // WOOO WE REGISTERED A FAKE MIXIN MAYBE IN LOADER STUFF
         return mixins;
     }
 
     @Override
-    public void preApply(String s, org.objectweb.asm.tree.ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
-
+    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        // do our silly asm stuff here
+        System.out.println("Pre-applying " + targetClassName + " via " + mixinClassName);
     }
 
     @Override
     public void postApply(String s, org.objectweb.asm.tree.ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
-
+        System.out.println("POST APPLY TEST");
     }
 }

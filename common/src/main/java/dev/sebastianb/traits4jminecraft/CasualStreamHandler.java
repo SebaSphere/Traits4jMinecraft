@@ -65,7 +65,7 @@ public final class CasualStreamHandler extends URLStreamHandler {
 		System.out.println("LOADED!");
 		System.out.println(mixins);
 		try {
-			return new URL("magic-at", null, -1, "/", new CasualStreamHandler(mixins));
+			return new URL("traits4jminecraft", null, -1, "/", new CasualStreamHandler(mixins));
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("Unexpected error creating URL", e);
 		}
@@ -80,9 +80,22 @@ public final class CasualStreamHandler extends URLStreamHandler {
 	@Override
 	protected URLConnection openConnection(URL url) throws IOException {
 		//System.out.println(providers.keySet());
-		//System.out.println("Open connection on " + url.getPath());
+		// System.out.println("Open connection on " + url.getPath());
+
+		// TODO: we want to redirect all variables of the actual "logical class" to the "defined /gen/mixin/"
+		// not sure if this works still but I'm trying
+		if (url.getPath().toString().equals("/dev/sebastianb/traits4jminecraft/trait/MinecraftTestTrait.class")) {
+
+			// print stacktrace
+			new Throwable().printStackTrace();
+
+			System.out.println("redirected");
+			// return "/dev/sebastianb/traits4jminecraft/gen/mixin/MinecraftTestTrait.class"
+			return new CasualConnection(url, providers.get("/dev/sebastianb/traits4jminecraft/gen/mixin/MinecraftTestTrait.class"));
+		}
+
 		if (!providers.containsKey(url.getPath())) return null; //Who?
-		//System.out.println("### PASSED ###");
+		System.out.println("### PASSED ###");
 		return new CasualConnection(url, providers.get(url.getPath()));
 	}
 }
