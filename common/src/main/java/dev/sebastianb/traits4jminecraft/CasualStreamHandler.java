@@ -83,7 +83,7 @@ public final class CasualStreamHandler extends URLStreamHandler {
 		// god
 		if (url.getPath().toString().startsWith("/dev/sebastianb/traits4jminecraft/")) {
 			System.out.println("LOADED THE PATH: " + url.getPath());
-			new Throwable().printStackTrace();
+			// new Throwable(url.getPath()).printStackTrace();
 		}
 
 		//System.out.println(providers.keySet());

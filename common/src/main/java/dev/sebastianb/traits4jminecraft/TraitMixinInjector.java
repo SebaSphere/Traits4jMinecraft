@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.ext.Extensions;
 import org.spongepowered.asm.mixin.transformer.ext.extensions.ExtensionClassExporter;
+import org.spongepowered.asm.service.MixinService;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -82,32 +83,67 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
             for (ClassPath.ClassInfo classInfo : classPath.getAllClasses()) {
                 // TODO: make it any mod ID main package
                 if (classInfo.getName().startsWith("dev.sebastianb.traits4jminecraft")) {
-                    Class<?> clazz = classInfo.load();
-                    for (Annotation annotation : clazz.getAnnotations()) {
-                        // for some reason, it's not possible to use the annotation directly?
-                        if (annotation.annotationType().getName().equals(Trait.class.getName())) {
-                            mixins.add(clazz.getSimpleName());
 
-                            preTransforms.computeIfAbsent(clazz.getName().replace(".", "/"), k -> new HashSet<>()).add("<*>");
+                    var classNode = MixinService.getService().getBytecodeProvider().getClassNode(classInfo.getName(), false);
 
-                            // FIXME: each mixin should have a unique gened name rather then making a fake package
-                            // like mixin 1, mixin 2, mixin 3, etc
-                            String genName = GENERATED_PACKAGE
-                                    .replace(".", "/") + "/" + clazz.getSimpleName();
-                            System.out.println("gener name " + genName);
+                    if (classNode.visibleAnnotations != null) {
+                        for (AnnotationNode annotation : classNode.visibleAnnotations) {
+                            if (Trait.class.descriptorString().equals(annotation.desc)) {
 
-                            // this sets things up for the CasualStreamHandler to load stuff in the jvm
-                            classGenerators.put('/' + genName.replace('.', '/') + ".class",
-                                    makeMixinBlob(genName.replace('.', '/'), Collections.singleton(clazz.getName().replace('.', '/'))));
+                                int lastIndex = classNode.name.lastIndexOf('/');
+                                String simpleName = lastIndex != -1 ? classNode.name.substring(lastIndex + 1) : classNode.name;
 
+                                System.out.println("MRP TRAIT");
+
+                                mixins.add(simpleName);
+
+                                preTransforms.computeIfAbsent(classNode.name.replace(".", "/"), k -> new HashSet<>()).add("<*>");
+
+                                // FIXME: each mixin should have a unique gened name rather then making a fake package
+                                // like mixin 1, mixin 2, mixin 3, etc
+                                String genName = GENERATED_PACKAGE
+                                        .replace(".", "/") + "/" + simpleName;
+                                System.out.println("gener name " + genName);
+
+                                // this sets things up for the CasualStreamHandler to load stuff in the jvm
+                                classGenerators.put('/' + genName.replace('.', '/') + ".class",
+                                        makeMixinBlob(genName.replace('.', '/'), Collections.singleton(classNode.name.replace('.', '/'))));
+
+                            }
                         }
-                        System.out.println(clazz.getName());
-                        System.out.println("  Found annotation: " + annotation.annotationType());
                     }
+
+
+
+
+//                    for (Annotation annotation : clazz.getAnnotations()) {
+//                        // for some reason, it's not possible to use the annotation directly?
+//                        if (annotation.annotationType().getName().equals(Trait.class.getName())) {
+//                            mixins.add(clazz.getSimpleName());
+//
+//                            preTransforms.computeIfAbsent(clazz.getName().replace(".", "/"), k -> new HashSet<>()).add("<*>");
+//
+//                            // FIXME: each mixin should have a unique gened name rather then making a fake package
+//                            // like mixin 1, mixin 2, mixin 3, etc
+//                            String genName = GENERATED_PACKAGE
+//                                    .replace(".", "/") + "/" + clazz.getSimpleName();
+//                            System.out.println("gener name " + genName);
+//
+//                            // this sets things up for the CasualStreamHandler to load stuff in the jvm
+//                            classGenerators.put('/' + genName.replace('.', '/') + ".class",
+//                                    makeMixinBlob(genName.replace('.', '/'), Collections.singleton(clazz.getName().replace('.', '/'))));
+//
+//                        }
+//                        System.out.println(clazz.getName());
+//                        System.out.println("  Found annotation: " + annotation.annotationType());
+//                    }
                 }
 
             }
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            System.out.println("CLASS NOT FOUND");
             throw new RuntimeException(e);
         }
 
