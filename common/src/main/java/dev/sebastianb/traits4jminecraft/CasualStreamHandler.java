@@ -86,32 +86,6 @@ public final class CasualStreamHandler extends URLStreamHandler {
 			// new Throwable(url.getPath()).printStackTrace();
 		}
 
-		//System.out.println(providers.keySet());
-		// System.out.println("Open connection on " + url.getPath());
-
-		// TODO: we want to redirect all variables of the actual "logical class" to the "defined /gen/mixin/"
-		// not sure if this works still but I'm trying
-
-		// FIXME: so for some reason, it doesn't load because it can't find "/dev/sebastianb/traits4jminecraft/trait/MinecraftTestTrait"
-		/*
-		Exporting /dev/sebastianb/traits4jminecraft/gen/mixin/MinecraftTestTrait.class
-		[17:52:08] [main/WARN] (FabricLoader/Mixin) Error loading class: /dev/sebastianb/traits4jminecraft/trait/MinecraftTestTrait (java.lang.ClassNotFoundException: /dev/sebastianb/traits4jminecraft/trait/MinecraftTestTrait)
-		[17:52:08] [main/WARN] (FabricLoader/Mixin) @Mixin target .dev.sebastianb.traits4jminecraft.trait.MinecraftTestTrait was not found traits4jminecraft.mixins.json:MinecraftTestTrait from mod traits4jminecraft
-
-		*/
-
-		// the following code "fixes" that but preapply doesn't apply for mixin asm stuff
-
-//		if (url.getPath().toString().equals("/dev/sebastianb/traits4jminecraft/trait/MinecraftTestTrait.class")) {
-//
-//			// print stacktrace
-//			new Throwable().printStackTrace();
-//
-//			System.out.println("redirected");
-//			// return "/dev/sebastianb/traits4jminecraft/gen/mixin/MinecraftTestTrait.class"
-//			return new CasualConnection(url, providers.get("/dev/sebastianb/traits4jminecraft/gen/mixin/MinecraftTestTrait.class"));
-//		}
-
 		if (!providers.containsKey(url.getPath())) return null; //Who?
 		System.out.println("### PASSED ###");
 		return new CasualConnection(url, providers.get(url.getPath()));
