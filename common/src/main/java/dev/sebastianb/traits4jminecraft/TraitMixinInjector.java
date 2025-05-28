@@ -71,8 +71,6 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         System.out.println("MIXIN INJECTION STARTED FROM " + rawMixinPackage);
         ClassLoader loader = this.getClass().getClassLoader();
 
-        String mixinPackage = rawMixinPackage.replace('.', '/') + "/";
-
 
         Map<String, Set<String>> preTransforms = new HashMap<>();
 
@@ -175,8 +173,8 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
             exporter.export(MixinEnvironment.getCurrentEnvironment(), name, false, node);
         };
 
-        // TODO: I need to generate a class at runtime for getMixins. Example filled out is "dev.sebastianb.traits4jminecraft.gen.mixin.dev.sebastianb.traits4jminecraft.trait.MinecraftTestTrait"
 
+        // so we actually load class generator stuff
         urlers.test(CasualStreamHandler.create(classGenerators));
 
         System.out.println("print class gens");
@@ -236,7 +234,6 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         // print all loaded mixins
         System.out.println("FETCHING MIXINS");
         System.out.println(mixins);
-
 
 
         // WOOO WE REGISTERED A FAKE MIXIN MAYBE IN LOADER STUFF
