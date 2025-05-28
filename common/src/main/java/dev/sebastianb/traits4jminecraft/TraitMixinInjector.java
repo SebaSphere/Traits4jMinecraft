@@ -77,7 +77,7 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         System.out.println("MIXIN INJECTION STARTED FROM " + rawMixinPackage);
         ClassLoader loader = this.getClass().getClassLoader();
 
-        String mixinPackage = rawMixinPackage.replace('.', '/');
+        String mixinPackage = rawMixinPackage.replace('.', '/') + "/";
 
 
         Map<String, Set<String>> preTransforms = new HashMap<>();
@@ -108,7 +108,8 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
                             System.out.println("gener name " + genName);
 
                             // this sets things up for the CasualStreamHandler to load stuff in the jvm
-                            classGenerators.put('/' + genName.replace('.', '/') + ".class", makeMixinBlob('/' + genName.replace('.', '/'), Collections.singleton('/' + clazz.getName().replace('.', '/'))));
+                            classGenerators.put('/' + genName.replace('.', '/') + ".class",
+                                    makeMixinBlob(genName.replace('.', '/'), Collections.singleton(clazz.getName().replace('.', '/'))));
 
                         }
                         System.out.println(clazz.getName());
@@ -190,6 +191,8 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         cw.visit(52, Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE, name, null, "java/lang/Object", null);
 
         AnnotationVisitor mixinAnnotation = cw.visitAnnotation("Lorg/spongepowered/asm/mixin/Mixin;", false);
+        mixinAnnotation.visit("remap", false);
+
         AnnotationVisitor targetAnnotation = mixinAnnotation.visitArray("value");
         for (String target : targets) {
             targetAnnotation.visit(null, Type.getType('L' + target + ';'));
@@ -208,7 +211,9 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
     }
 
     @Override
-    public boolean shouldApplyMixin(String s, String s1) {
+    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        System.out.println("mixin class name is " + mixinClassName);
+        System.out.println("target class name is " + targetClassName);
         return true;
     }
 
@@ -224,12 +229,6 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         System.out.println("FETCHING MIXINS");
         System.out.println(mixins);
 
-        try {
-            ClassLoader loader = this.getClass().getClassLoader();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
 
         // WOOO WE REGISTERED A FAKE MIXIN MAYBE IN LOADER STUFF
