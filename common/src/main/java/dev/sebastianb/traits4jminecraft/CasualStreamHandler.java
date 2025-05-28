@@ -79,6 +79,13 @@ public final class CasualStreamHandler extends URLStreamHandler {
 
 	@Override
 	protected URLConnection openConnection(URL url) throws IOException {
+
+		// god
+		if (url.getPath().toString().startsWith("/dev/sebastianb/traits4jminecraft/")) {
+			System.out.println("LOADED THE PATH: " + url.getPath());
+			new Throwable().printStackTrace();
+		}
+
 		//System.out.println(providers.keySet());
 		// System.out.println("Open connection on " + url.getPath());
 

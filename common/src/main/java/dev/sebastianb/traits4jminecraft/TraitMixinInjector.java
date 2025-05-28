@@ -1,19 +1,15 @@
 package dev.sebastianb.traits4jminecraft;
 
 import com.google.common.reflect.ClassPath;
-import dev.sebastianb.traits4jminecraft.trait.MinecraftTestTrait;
-import net.terradevelopment.traits4j.PreMain;
 import net.terradevelopment.traits4j.annotations.Trait;
 import net.terradevelopment.traits4j.clazz.TraitImplementationUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.ext.Extensions;
 import org.spongepowered.asm.mixin.transformer.ext.extensions.ExtensionClassExporter;
-import org.spongepowered.asm.service.MixinService;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -30,8 +26,6 @@ import java.util.stream.Collectors;
 // TODO: do this
 public class TraitMixinInjector implements IMixinConfigPlugin {
 
-
-    private Map<String, Set<Consumer<ClassNode>>> tinkerers = new HashMap<>();
 
 
     // this was so painful to figure out, tysm fabric asm for the pain of copy paste
@@ -82,12 +76,9 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
 
         Map<String, Set<String>> preTransforms = new HashMap<>();
 
-        // after transformed
-        Map<String, Set<String>> postTransforms = new HashMap<>();
-
         Map<String, byte[]> classGenerators = new HashMap<>();
 
-        // get all loaded classes in mod
+        // get all loaded classes in mod and setup fake mixins
         try {
             ClassPath classPath = ClassPath.from(loader);
             for (ClassPath.ClassInfo classInfo : classPath.getAllClasses()) {
@@ -121,6 +112,23 @@ public class TraitMixinInjector implements IMixinConfigPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        // so we're able to load vanilla classes and preapply to them but not our own classes???
+
+/*
+        String genName = GENERATED_PACKAGE
+                .replace(".", "/") + "/" + "Sheep";
+
+        String targetName = "net.minecraft.world.entity.animal.Sheep".replace('.', '/');
+
+        classGenerators.put("/" + genName.replace(".", "/") + ".class", makeMixinBlob(genName.replace('.', '/'), Collections.singleton(targetName)));
+
+        mixins.add("Sheep");
+
+        preTransforms.computeIfAbsent("net.minecraft.world.entity.animal.Sheep".replace(".", "/"), k -> new HashSet<>()).add("<*>");
+*/
+
+
 
         System.out.println("Casual stream handler created");
 
